@@ -8,21 +8,26 @@ import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.FileInputStream;
+import javax.annotation.PostConstruct;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 @Configuration
 public class FirestoreConfig {
 
+    private String serviceAccountKey; // Variable to store the service account key JSON content
+
+    @PostConstruct
+    public void init() {
+        // Read the service account key JSON content from the environment variable
+        serviceAccountKey = System.getenv("FIREBASE_SERVICE_ACCOUNT_KEY");
+    }
+
     @Bean
     public Firestore firestore() throws IOException {
-        // Path to your service account key JSON file
-        String serviceAccountPath = "C:/Users/golub/serviceAccountKey.json";
-
-        // Initialize Firebase Admin SDK
-        FileInputStream serviceAccount = new FileInputStream(serviceAccountPath);
+        // Initialize Firebase Admin SDK with the service account key JSON content
         FirebaseOptions options = new FirebaseOptions.Builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .setCredentials(GoogleCredentials.fromStream(new ByteArrayInputStream(serviceAccountKey.getBytes())))
                 .build();
         FirebaseApp.initializeApp(options);
 
